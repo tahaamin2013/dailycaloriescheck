@@ -2,6 +2,9 @@ import { createUser, getUserByEmail } from "@/lib/auth"
 import jwt from "jsonwebtoken"
 import { type NextRequest, NextResponse } from "next/server"
 
+// Add this to prevent static generation
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const { name, email, password } = await request.json()
@@ -16,9 +19,11 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await createUser(name, email, password)
-    const token = jwt.sign({ id: user.id, email: user.email }, process.env.NEXTAUTH_SECRET || "secret", {
-      expiresIn: "7d",
-    })
+    const token = jwt.sign(
+      { id: user.id, email: user.email }, 
+      process.env.NEXTAUTH_SECRET || "secret", 
+      { expiresIn: "7d" }
+    )
 
     return NextResponse.json({
       token,
