@@ -2,6 +2,9 @@ import { prisma } from "@/lib/prisma"
 import jwt from "jsonwebtoken"
 import { type NextRequest, NextResponse } from "next/server"
 
+// Add this to prevent static generation
+export const dynamic = 'force-dynamic'
+
 function getUserIdFromToken(request: NextRequest): string | null {
   const token = request.headers.get("authorization")?.replace("Bearer ", "")
   if (!token) return null
@@ -24,7 +27,7 @@ export async function PUT(
   }
 
   try {
-    const { id } = await params // Await params here
+    const { id } = await params
     const { date, type, mealName, qty, calories, notes } = await request.json()
 
     const log = await prisma.mealLog.updateMany({
@@ -60,7 +63,7 @@ export async function DELETE(
   }
 
   try {
-    const { id } = await params // Await params here
+    const { id } = await params
     
     const log = await prisma.mealLog.deleteMany({
       where: { id, userId },
