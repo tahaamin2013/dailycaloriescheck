@@ -2,6 +2,9 @@ import { prisma } from "@/lib/prisma"
 import jwt from "jsonwebtoken"
 import { type NextRequest, NextResponse } from "next/server"
 
+// Add this to prevent static generation
+export const dynamic = 'force-dynamic'
+
 function getUserIdFromToken(request: NextRequest): string | null {
   const token = request.headers.get("authorization")?.replace("Bearer ", "")
   if (!token) return null
