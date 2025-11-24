@@ -14,17 +14,21 @@ function getUserIdFromToken(request: NextRequest): string | null {
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: NextRequest, 
+  { params }: { params: Promise<{ id: string }> }
+) {
   const userId = getUserIdFromToken(request)
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   try {
+    const { id } = await params // Await params here
     const { date, type, mealName, qty, calories, notes } = await request.json()
 
     const log = await prisma.mealLog.updateMany({
-      where: { id: params.id, userId },
+      where: { id, userId },
       data: {
         date: new Date(date),
         type,
@@ -46,15 +50,20 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest, 
+  { params }: { params: Promise<{ id: string }> }
+) {
   const userId = getUserIdFromToken(request)
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   try {
+    const { id } = await params // Await params here
+    
     const log = await prisma.mealLog.deleteMany({
-      where: { id: params.id, userId },
+      where: { id, userId },
     })
 
     if (log.count === 0) {
