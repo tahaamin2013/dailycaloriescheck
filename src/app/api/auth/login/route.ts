@@ -2,6 +2,9 @@ import { getUserByEmail, verifyPassword } from "@/lib/auth"
 import jwt from "jsonwebtoken"
 import { type NextRequest, NextResponse } from "next/server"
 
+// Add this to prevent static generation
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json()
@@ -20,9 +23,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email }, process.env.NEXTAUTH_SECRET || "secret", {
-      expiresIn: "7d",
-    })
+    const token = jwt.sign(
+      { id: user.id, email: user.email }, 
+      process.env.NEXTAUTH_SECRET || "secret", 
+      { expiresIn: "7d" }
+    )
 
     return NextResponse.json({
       token,
