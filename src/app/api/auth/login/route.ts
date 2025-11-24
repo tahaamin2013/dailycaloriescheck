@@ -2,8 +2,7 @@ import { getUserByEmail, verifyPassword } from "@/lib/auth"
 import jwt from "jsonwebtoken"
 import { type NextRequest, NextResponse } from "next/server"
 
-// Add BOTH of these exports
-export const dynamic = 'force-dynamic'
+// runtime must be nodejs for jsonwebtoken
 export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
