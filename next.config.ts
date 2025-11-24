@@ -1,8 +1,12 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    serverComponentsExternalPackages: ['bcryptjs', '@prisma/client'],
+  },
+  // Skip build-time route generation for API routes
+  skipMiddlewareUrlNormalize: true,
+  skipTrailingSlashRedirect: true,
   reactCompiler: true,
-};
+}
 
-export default nextConfig;
+module.exports = nextConfig
