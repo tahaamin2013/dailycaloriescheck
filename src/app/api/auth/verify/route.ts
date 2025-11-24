@@ -3,7 +3,7 @@ import { jwtVerify } from "jose"
 
 const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || "")
 
-export async function GET() {
+export default async function  GET() {
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get("authToken")?.value

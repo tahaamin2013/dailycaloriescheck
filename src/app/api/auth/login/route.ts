@@ -5,7 +5,7 @@ import { type NextRequest, NextResponse } from "next/server"
 // Add this to prevent static generation
 export const dynamic = 'force-dynamic'
 
-export async function POST(request: NextRequest) {
+export default async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json()
 
