@@ -3,11 +3,8 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['bcryptjs', '@prisma/client'],
   },
-  // Skip build-time route generation for API routes
-  skipMiddlewareUrlNormalize: true,
-  skipTrailingSlashRedirect: true,
-  reactCompiler: true,
-    typescript: {
+  // Skip build optimizations that might cause issues
+  typescript: {
     ignoreBuildErrors: false,
   },
   eslint: {
