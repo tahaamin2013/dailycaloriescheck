@@ -1,17 +1,44 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Menu, X, BarChart3, Database, LogOut, Flame } from "lucide-react"
+import { Menu, X, BarChart3, Database, LogOut, Flame, Moon, Sun, Palette } from "lucide-react"
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false)
+  const [theme, setTheme] = useState<"light" | "dark" | "system">("system")
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null
   const currentTab = searchParams?.get("tab") || "home"
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | "system" | null
+    if (savedTheme) {
+      setTheme(savedTheme)
+      applyTheme(savedTheme)
+    }
+  }, [])
+
+  const applyTheme = (newTheme: "light" | "dark" | "system") => {
+    const root = document.documentElement
+    if (newTheme === "dark") {
+      root.classList.add("dark")
+    } else if (newTheme === "light") {
+      root.classList.remove("dark")
+    } else {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+      prefersDark ? root.classList.add("dark") : root.classList.remove("dark")
+    }
+  }
+
+  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
+    setTheme(newTheme)
+    localStorage.setItem("theme", newTheme)
+    applyTheme(newTheme)
+  }
 
   const navItems = [
     { href: "/dashboard?tab=home", label: "Food List", tab: "home", icon: Flame },
@@ -79,6 +106,43 @@ export default function Sidebar() {
             )
           })}
         </nav>
+
+        {/* Theme Selector */}
+        <div className="p-4 border-t border-sidebar-border">
+          <div className="flex items-center gap-2 mb-2">
+            <Palette size={18} />
+            <span className="text-sm font-medium">Theme</span>
+          </div>
+          <div className="flex w-fit gap-2">
+            <button
+              onClick={() => handleThemeChange("light")}
+              className={`p-2 rounded-lg transition-colors ${
+                theme === "light" ? "bg-primary text-primary-foreground" : "bg-sidebar-accent hover:bg-sidebar-accent/80"
+              }`}
+              title="Light"
+            >
+              <Sun size={18} />
+            </button>
+            <button
+              onClick={() => handleThemeChange("dark")}
+              className={`p-2 rounded-lg transition-colors ${
+                theme === "dark" ? "bg-primary text-primary-foreground" : "bg-sidebar-accent hover:bg-sidebar-accent/80"
+              }`}
+              title="Dark"
+            >
+              <Moon size={18} />
+            </button>
+            <button
+              onClick={() => handleThemeChange("system")}
+              className={`p-2 rounded-lg transition-colors ${
+                theme === "system" ? "bg-primary text-primary-foreground" : "bg-sidebar-accent hover:bg-sidebar-accent/80"
+              }`}
+              title="System"
+            >
+              <Palette size={18} />
+            </button>
+          </div>
+        </div>
 
         {/* Logout Button */}
         <div className="p-4 border-t border-sidebar-border">
