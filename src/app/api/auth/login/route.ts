@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken"
 import { type NextRequest, NextResponse } from "next/server"
 
 // runtime must be nodejs for jsonwebtoken
+export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
