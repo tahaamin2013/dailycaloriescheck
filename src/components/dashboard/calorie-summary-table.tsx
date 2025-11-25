@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {  TableCell, TableHead,                                                                  TableRow } from "@/components/ui/table"
 import { Flame, ChevronDown, ChevronRight } from "lucide-react"
 
 interface MealLog {
@@ -69,7 +70,6 @@ export default function CalorieSummaryTable({ token }: { token: string | null })
     })
 
     setSummary(summaryData)
-    // Expand first month by default
     const firstMonth = Object.keys(summaryData)[0]
     if (firstMonth) {
       setExpandedMonths(new Set([firstMonth]))
@@ -108,33 +108,19 @@ export default function CalorieSummaryTable({ token }: { token: string | null })
   }
 
   return (
-    <Card className="shadow-lg">
+    <Card className="shadow-lg w-fit">
       <CardHeader className="border-b border-primary/10">
         <CardTitle className="flex items-center gap-2">
           <Flame size={20} className="text-primary" />
           SUM of calories Type
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-6">
+      <CardContent className="mt-[-35px]">
         {sortedMonths.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">No meal data available yet</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b-2 border-primary/20 bg-green-50 dark:bg-green-950/20">
-                  <th className="px-4 py-3 text-left font-semibold text-foreground">Date - Month</th>
-                  <th className="px-4 py-3 text-left font-semibold text-foreground">Date - Day of the month</th>
-                  {allMealTypes.map((type) => (
-                    <th key={type} className="px-4 py-3 text-center font-semibold text-foreground">
-                      {type}
-                    </th>
-                  ))}
-                  <th className="px-4 py-3 text-center font-semibold text-foreground">Grand Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedMonths.map((month) => {
+         {sortedMonths.map((month) => {
                   const monthData = summary[month]
                   const isExpanded = expandedMonths.has(month)
                   const monthTotal = calculateMonthTotal(monthData)
@@ -143,74 +129,80 @@ export default function CalorieSummaryTable({ token }: { token: string | null })
                     .sort((a, b) => b - a)
 
                   return (
-                    <tbody key={month}>
-                      <tr
+                    <tbody className=" w-full" key={month}>
+                             <TableRow className="bg-green-50  dark:bg-green-950/20 hover:bg-green-50 dark:hover:bg-green-950/20">
+                  <TableHead className="font-semibold mr-7"> Month</TableHead>
+                  <TableHead className="font-semibold mr-7">Date</TableHead>
+                  {allMealTypes.map((type) => (
+                    <TableHead key={type} className="text-center font-semibold mr-7">
+                      {type}
+                    </TableHead>
+                  ))}
+                  <TableHead className="text-center font-semibold mr-7">Grand Total</TableHead>
+                </TableRow>
+                      {/* Month header row */}
+                      <TableRow
                         onClick={() => toggleMonth(month)}
-                        className="border-b border-border hover:bg-secondary/50 transition-colors cursor-pointer bg-slate-50 dark:bg-slate-900/30"
+                        className=" w-full dark:bg-slate-900/30 hover:bg-secondary/50 cursor-pointer"
                       >
-                        <td className="px-4 py-3">
+                        <TableCell className="font-semibold">
                           <div className="flex items-center gap-2">
                             {isExpanded ? (
                               <ChevronDown size={18} className="text-muted-foreground" />
                             ) : (
                               <ChevronRight size={18} className="text-muted-foreground" />
                             )}
-                            <span className="font-semibold text-foreground">{month}</span>
+                            <span>{month}</span>
                           </div>
-                        </td>
-                        <td></td>
+                        </TableCell>
+                        <TableCell></TableCell>
                         {allMealTypes.map((type) => (
-                          <td key={type} className="px-4 py-3 text-center"></td>
+                                   <TableCell key={type}></TableCell>
                         ))}
-                        <td className="px-4 py-3 text-center font-semibold text-foreground">
-                          {monthTotal.toLocaleString()}
-                        </td>
-                      </tr>
+                        <TableCell className="text-center font-semibold">{monthTotal.toLocaleString()}</TableCell>
+                      </TableRow>
 
+                      {/* Day rows */}
                       {isExpanded &&
                         sortedDays.map((day) => {
                           const dayData = monthData[day.toString()]
                           const dayTotal = calculateDayTotal(dayData)
 
                           return (
-                            <tr
-                              key={`${month}-${day}`}
-                              className="border-b border-border hover:bg-secondary/50 transition-colors"
-                            >
-                              <td className="px-4 py-3"></td>
-                              <td className="px-4 py-3 text-left text-foreground">{day}</td>
+                            <TableRow key={`${month}-${day}`} className="hover:bg-secondary/50">
+                              <TableCell></TableCell>
+                              <TableCell>{day}</TableCell>
                               {allMealTypes.map((type) => (
-                                <td key={type} className="px-4 py-3 text-center text-foreground">
+                                <TableCell key={type} className="text-center">
                                   {dayData[type] ? dayData[type].toLocaleString() : "-"}
-                                </td>
+                                </TableCell>
                               ))}
-                              <td className="px-4 py-3 text-center font-semibold bg-pink-100 dark:bg-pink-900/30 text-foreground">
+                              <TableCell className="text-center font-semibold bg-pink-100 dark:bg-pink-900/30">
                                 {dayTotal.toLocaleString()}
-                              </td>
-                            </tr>
+                              </TableCell>
+                            </TableRow>
                           )
                         })}
 
-                      <tr className="border-b-2 border-primary/20 bg-green-50 dark:bg-green-950/20 font-semibold">
-                        <td className="px-4 py-3"></td>
-                        <td className="px-4 py-3 text-left text-foreground">Total</td>
+                      {/* Month total row */}
+                      <TableRow className="bg-green-50 dark:bg-green-950/20 hover:bg-green-50 dark:hover:bg-green-950/20 font-semibold border-b-2">
+                        <TableCell></TableCell>
+                        <TableCell className="font-semibold">Total</TableCell>
                         {allMealTypes.map((type) => {
                           const typeTotal = Object.values(monthData).reduce((sum, day) => sum + (day[type] || 0), 0)
                           return (
-                            <td key={type} className="px-4 py-3 text-center text-foreground">
+                            <TableCell key={type} className="text-center font-semibold">
                               {typeTotal > 0 ? typeTotal.toLocaleString() : "-"}
-                            </td>
+                            </TableCell>
                           )
                         })}
-                        <td className="px-4 py-3 text-center bg-green-200 dark:bg-green-900/40 text-foreground">
+                        <TableCell className="text-center font-semibold bg-green-200 dark:bg-green-900/40">
                           {monthTotal.toLocaleString()}
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     </tbody>
                   )
                 })}
-              </tbody>
-            </table>
           </div>
         )}
       </CardContent>
