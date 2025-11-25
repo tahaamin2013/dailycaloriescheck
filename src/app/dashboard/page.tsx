@@ -6,9 +6,11 @@ import Sidebar from "@/components/sidebar"
 import DataTab from "@/components/dashboard/data-tab"
 import HomeTab from "@/components/dashboard/home-tab"
 import AnalyticsTab from "@/components/dashboard/analytics-tab"
+import HeightTab from "@/components/dashboard/height-tab"
+import WeightTab from "@/components/dashboard/weight-tab"
 
 function DashboardContent() {
-  const [activeTab, setActiveTab] = useState<"home" | "data" | "analytics">("home")
+  const [activeTab, setActiveTab] = useState<"home" | "data" | "analytics" | "height" | "weight">("home")
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
@@ -25,7 +27,7 @@ function DashboardContent() {
 
     // Set active tab from URL
     const tab = searchParams.get("tab")
-    if (tab === "data" || tab === "analytics") {
+    if (tab === "data" || tab === "analytics" || tab === "height" || tab === "weight") {
       setActiveTab(tab)
     }
   }, [router, searchParams])
@@ -58,6 +60,8 @@ function DashboardContent() {
             {activeTab === "home" && <HomeTab token={token} />}
             {activeTab === "data" && <DataTab token={token} />}
             {activeTab === "analytics" && <AnalyticsTab token={token} />}
+            {activeTab === "height" && <HeightTab token={token} />}
+            {activeTab === "weight" && <WeightTab token={token} />}
           </div>
         </div>
       </main>

@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Menu, X, BarChart3, Database, LogOut, Flame } from "lucide-react"
+import { Menu, X, BarChart3, Database, LogOut, Flame, Activity, Weight } from "lucide-react"
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -17,6 +17,8 @@ export default function Sidebar() {
     { href: "/dashboard?tab=home", label: "Food List", tab: "home", icon: Flame },
     { href: "/dashboard?tab=data", label: "Daily Log", tab: "data", icon: Database },
     { href: "/dashboard?tab=analytics", label: "Analytics", tab: "analytics", icon: BarChart3 },
+    { href: "/dashboard?tab=height", label: "Height", tab: "height", icon: Activity },
+    { href: "/dashboard?tab=weight", label: "Weight", tab: "weight", icon: Weight },
   ]
 
   const handleLogout = () => {
