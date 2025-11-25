@@ -51,6 +51,7 @@ export default function DataTab({ token }: { token: string | null }) {
       })
       const data = await res.json()
       setMeals(Array.isArray(data) ? data : [])
+      console.log("[v0] Meals fetched:", Array.isArray(data) ? data.length : "not an array", data)
     } catch (error) {
       console.error("Error fetching meals:", error)
       setMeals([])
@@ -282,36 +283,40 @@ export default function DataTab({ token }: { token: string | null }) {
           Object.entries(groupedLogs).map(([date, dateLogs]) => (
             <div key={date} className="space-y-2">
               <h3 className="font-semibold text-lg text-primary">{date}</h3>
-              <div className="overflow-x-auto rounded-lg border border-border">
+              <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border bg-secondary/50">
-                      <th className="px-4 py-3 text-left font-semibold">Meal</th>
-                      <th className="px-4 py-3 text-left font-semibold">Type</th>
-                      <th className="px-4 py-3 text-center font-semibold">Qty</th>
-                      <th className="px-4 py-3 text-right font-semibold">Calories</th>
-                      <th className="px-4 py-3 text-center font-semibold">Actions</th>
+                    <tr className="border-b border-border bg-secondary/30">
+                      <th className="px-4 py-2 text-left">Date</th>
+                      <th className="px-4 py-2 text-left">Type</th>
+                      <th className="px-4 py-2 text-left">Meal</th>
+                      <th className="px-4 py-2 text-center">Qty</th>
+                      <th className="px-4 py-2 text-right">Calories</th>
+                      <th className="px-4 py-2 text-center">Notes</th>
+                      <th className="px-4 py-2 text-center">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {dateLogs.map((log) => (
-                      <tr key={log.id} className="border-b border-border hover:bg-secondary/30 transition-colors">
-                        <td className="px-4 py-3 font-medium">{log.mealName}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{log.type}</td>
-                        <td className="px-4 py-3 text-center">{log.qty}</td>
-                        <td className="px-4 py-3 text-right font-semibold text-primary">{log.calories} kcal</td>
-                        <td className="px-4 py-3">
+                      <tr key={log.id} className="border-b border-border hover:bg-secondary/10 transition-colors">
+                        <td className="px-4 py-2 font-medium">{new Date(log.date).toLocaleDateString()}</td>
+                        <td className="px-4 py-2">{log.type}</td>
+                        <td className="px-4 py-2">{log.mealName}</td>
+                        <td className="px-4 py-2 text-center">{log.qty}</td>
+                        <td className="px-4 py-2 text-right font-semibold text-primary">{log.calories}</td>
+                        <td className="px-4 py-2 text-center text-xs text-muted-foreground">{log.notes || "-"}</td>
+                        <td className="px-4 py-2">
                           <div className="flex gap-2 justify-center">
                             <button
                               onClick={() => handleEdit(log)}
-                              className="p-1.5 hover:bg-primary/20 text-primary rounded transition-colors"
+                              className="p-1 hover:bg-secondary rounded transition-colors"
                               title="Edit"
                             >
                               <Edit2 size={16} />
                             </button>
                             <button
                               onClick={() => handleDelete(log.id)}
-                              className="p-1.5 hover:bg-destructive/20 text-destructive rounded transition-colors"
+                              className="p-1 hover:bg-destructive/10 text-destructive rounded transition-colors"
                               title="Delete"
                             >
                               <Trash2 size={16} />

@@ -2,8 +2,7 @@ import { prisma } from "@/lib/prisma"
 import jwt from "jsonwebtoken"
 import { type NextRequest, NextResponse } from "next/server"
 
-// Add this to prevent static generation
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 function getUserIdFromToken(request: NextRequest): string | null {
   const token = request.headers.get("authorization")?.replace("Bearer ", "")
@@ -40,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(log)
   } catch (error) {
-    console.error("Create meal log error:", error)
+    console.error("[v0] Create meal log error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
@@ -59,7 +58,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(logs)
   } catch (error) {
-    console.error("Get meal logs error:", error)
+    console.error("[v0] Get meal logs error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

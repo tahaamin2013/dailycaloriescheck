@@ -142,7 +142,7 @@ export default function AnalyticsTab({ token }: { token: string | null }) {
           return (
             <Card
               key={idx}
-              className={`bg-transparent hover:shadow-lg transition-shadow`}
+              className={`bg-gradient-to-br ${stat.color} border-primary/20 hover:shadow-lg transition-shadow`}
             >
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
@@ -215,7 +215,7 @@ export default function AnalyticsTab({ token }: { token: string | null }) {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     outerRadius={100}
                     fill="#8884d8"
                     dataKey="value"

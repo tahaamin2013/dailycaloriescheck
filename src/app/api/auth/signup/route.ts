@@ -2,8 +2,7 @@ import { createUser, getUserByEmail } from "@/lib/auth"
 import jwt from "jsonwebtoken"
 import { type NextRequest, NextResponse } from "next/server"
 
-// Add this to prevent static generation
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,24 +12,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
+    if (!process.env.DATABASE_URL) {
+      console.error("[v0] DATABASE_URL environment variable is not set")
+      return NextResponse.json({ error: "Database configuration error - please contact support" }, { status: 500 })
+    }
+
     const existingUser = await getUserByEmail(email)
     if (existingUser) {
       return NextResponse.json({ error: "User already exists" }, { status: 400 })
     }
 
     const user = await createUser(name, email, password)
-    const token = jwt.sign(
-      { id: user.id, email: user.email }, 
-      process.env.NEXTAUTH_SECRET || "secret", 
-      { expiresIn: "7d" }
-    )
+    const token = jwt.sign({ id: user.id, email: user.email }, process.env.NEXTAUTH_SECRET || "secret", {
+      expiresIn: "7d",
+    })
 
     return NextResponse.json({
       token,
       user: { id: user.id, name: user.name, email: user.email },
     })
   } catch (error) {
-    console.error("Signup error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("[v0] Signup error details:", {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      type: error instanceof Error ? error.constructor.name : typeof error,
+    })
+    return NextResponse.json(
+      { error: "Internal server error", details: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 },
+    )
   }
 }
