@@ -18,6 +18,7 @@ import {
   Cell,
 } from "recharts"
 import { TrendingUp, Flame, Calendar, Zap } from "lucide-react"
+import CalorieSummaryTable from "./calorie-summary-table"
 
 interface MealLog {
   id: string
@@ -215,7 +216,7 @@ export default function AnalyticsTab({ token }: { token: string | null }) {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     outerRadius={100}
                     fill="#8884d8"
                     dataKey="value"
@@ -271,6 +272,9 @@ export default function AnalyticsTab({ token }: { token: string | null }) {
           )}
         </CardContent>
       </Card>
+
+      {/* Calorie Summary Table */}
+      <CalorieSummaryTable token={token} />
     </div>
   )
 }
