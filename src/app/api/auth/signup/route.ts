@@ -2,9 +2,8 @@ import { createUser, getUserByEmail } from "@/lib/auth"
 import jwt from "jsonwebtoken"
 import { type NextRequest, NextResponse } from "next/server"
 
-// Add both of these
+// Add this to prevent static generation
 export const dynamic = 'force-dynamic'
-export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {

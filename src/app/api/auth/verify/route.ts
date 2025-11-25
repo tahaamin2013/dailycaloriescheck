@@ -1,9 +1,6 @@
 import { cookies } from "next/headers"
 import { jwtVerify } from "jose"
 
-// Add this to prevent static generation
-export const dynamic = 'force-dynamic'
-
 const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET || "")
 
 export async function GET() {

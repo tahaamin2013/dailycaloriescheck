@@ -2,13 +2,13 @@ import { getUserByEmail, verifyPassword } from "@/lib/auth"
 import jwt from "jsonwebtoken"
 import { type NextRequest, NextResponse } from "next/server"
 
-// runtime must be nodejs for jsonwebtoken
+// Add this to prevent static generation
 export const dynamic = 'force-dynamic'
-export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json()
+
     if (!email || !password) {
       return NextResponse.json({ error: "Missing email or password" }, { status: 400 })
     }
