@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Flame } from "lucide-react"
+import { Flame, ChevronDown, ChevronRight } from "lucide-react"
 
 interface MealLog {
   id: string
@@ -13,16 +13,19 @@ interface MealLog {
   calories: number
 }
 
-interface DailySummary {
-  [date: string]: {
-    [mealType: string]: number
+interface MonthlySummary {
+  [month: string]: {
+    [day: string]: {
+      [mealType: string]: number
+    }
   }
 }
 
 export default function CalorieSummaryTable({ token }: { token: string | null }) {
   const [logs, setLogs] = useState<MealLog[]>([])
   const [loading, setLoading] = useState(true)
-  const [summary, setSummary] = useState<DailySummary>({})
+  const [summary, setSummary] = useState<MonthlySummary>({})
+  const [expandedMonths, setExpandedMonths] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     fetchLogs()
@@ -46,34 +49,63 @@ export default function CalorieSummaryTable({ token }: { token: string | null })
   }
 
   const processSummary = (logs: MealLog[]) => {
-    const summaryData: DailySummary = {}
+    const summaryData: MonthlySummary = {}
 
     logs.forEach((log) => {
-      const date = new Date(log.date).toLocaleDateString("en-GB")
-      if (!summaryData[date]) {
-        summaryData[date] = {}
+      const logDate = new Date(log.date)
+      const monthKey = logDate.toLocaleString("en-US", { month: "short" })
+      const day = logDate.getDate().toString()
+
+      if (!summaryData[monthKey]) {
+        summaryData[monthKey] = {}
       }
-      if (!summaryData[date][log.type]) {
-        summaryData[date][log.type] = 0
+      if (!summaryData[monthKey][day]) {
+        summaryData[monthKey][day] = {}
       }
-      summaryData[date][log.type] += log.calories
+      if (!summaryData[monthKey][day][log.type]) {
+        summaryData[monthKey][day][log.type] = 0
+      }
+      summaryData[monthKey][day][log.type] += log.calories
     })
 
     setSummary(summaryData)
+    // Expand first month by default
+    const firstMonth = Object.keys(summaryData)[0]
+    if (firstMonth) {
+      setExpandedMonths(new Set([firstMonth]))
+    }
+  }
+
+  const toggleMonth = (month: string) => {
+    const newExpanded = new Set(expandedMonths)
+    if (newExpanded.has(month)) {
+      newExpanded.delete(month)
+    } else {
+      newExpanded.add(month)
+    }
+    setExpandedMonths(newExpanded)
   }
 
   if (loading) {
     return <div className="text-center py-8">Loading...</div>
   }
 
-  // Get all unique meal types
-  const allMealTypes = Array.from(new Set(logs.map((log) => log.type))).sort()
+  const allMealTypes = Array.from(
+    new Set(Object.values(summary).flatMap((month) => Object.values(month).flatMap((day) => Object.keys(day)))),
+  ).sort()
 
-  const sortedDates = Object.keys(summary).sort((a, b) => {
-    const dateA = new Date(a.split("/").reverse().join("-"))
-    const dateB = new Date(b.split("/").reverse().join("-"))
-    return dateB.getTime() - dateA.getTime()
+  const sortedMonths = Object.keys(summary).sort((a, b) => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    return months.indexOf(b) - months.indexOf(a)
   })
+
+  const calculateDayTotal = (dayData: { [mealType: string]: number }) => {
+    return Object.values(dayData).reduce((sum, cal) => sum + cal, 0)
+  }
+
+  const calculateMonthTotal = (monthData: { [day: string]: { [mealType: string]: number } }) => {
+    return Object.values(monthData).reduce((sum, day) => sum + calculateDayTotal(day), 0)
+  }
 
   return (
     <Card className="shadow-lg">
@@ -84,14 +116,15 @@ export default function CalorieSummaryTable({ token }: { token: string | null })
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-6">
-        {sortedDates.length === 0 ? (
+        {sortedMonths.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">No meal data available yet</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full text-sm">
               <thead>
                 <tr className="border-b-2 border-primary/20 bg-green-50 dark:bg-green-950/20">
-                  <th className="px-4 py-3 text-left font-semibold text-foreground">Date</th>
+                  <th className="px-4 py-3 text-left font-semibold text-foreground">Date - Month</th>
+                  <th className="px-4 py-3 text-left font-semibold text-foreground">Date - Day of the month</th>
                   {allMealTypes.map((type) => (
                     <th key={type} className="px-4 py-3 text-center font-semibold text-foreground">
                       {type}
@@ -101,20 +134,79 @@ export default function CalorieSummaryTable({ token }: { token: string | null })
                 </tr>
               </thead>
               <tbody>
-                {sortedDates.map((date) => {
-                  const dayData = summary[date]
-                  const total = Object.values(dayData).reduce((sum, cal) => sum + cal, 0)
+                {sortedMonths.map((month) => {
+                  const monthData = summary[month]
+                  const isExpanded = expandedMonths.has(month)
+                  const monthTotal = calculateMonthTotal(monthData)
+                  const sortedDays = Object.keys(monthData)
+                    .map(Number)
+                    .sort((a, b) => b - a)
 
                   return (
-                    <tr key={date} className="border-b border-border hover:bg-secondary/50 transition-colors">
-                      <td className="px-4 py-3 font-medium text-foreground">{date}</td>
-                      {allMealTypes.map((type) => (
-                        <td key={type} className="px-4 py-3 text-center text-foreground">
-                          {dayData[type] ? dayData[type].toLocaleString() : "-"}
+                    <tbody key={month}>
+                      <tr
+                        onClick={() => toggleMonth(month)}
+                        className="border-b border-border hover:bg-secondary/50 transition-colors cursor-pointer bg-slate-50 dark:bg-slate-900/30"
+                      >
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            {isExpanded ? (
+                              <ChevronDown size={18} className="text-muted-foreground" />
+                            ) : (
+                              <ChevronRight size={18} className="text-muted-foreground" />
+                            )}
+                            <span className="font-semibold text-foreground">{month}</span>
+                          </div>
                         </td>
-                      ))}
-                      <td className="px-4 py-3 text-center font-semibold text-primary">{total.toLocaleString()}</td>
-                    </tr>
+                        <td></td>
+                        {allMealTypes.map((type) => (
+                          <td key={type} className="px-4 py-3 text-center"></td>
+                        ))}
+                        <td className="px-4 py-3 text-center font-semibold text-foreground">
+                          {monthTotal.toLocaleString()}
+                        </td>
+                      </tr>
+
+                      {isExpanded &&
+                        sortedDays.map((day) => {
+                          const dayData = monthData[day.toString()]
+                          const dayTotal = calculateDayTotal(dayData)
+
+                          return (
+                            <tr
+                              key={`${month}-${day}`}
+                              className="border-b border-border hover:bg-secondary/50 transition-colors"
+                            >
+                              <td className="px-4 py-3"></td>
+                              <td className="px-4 py-3 text-left text-foreground">{day}</td>
+                              {allMealTypes.map((type) => (
+                                <td key={type} className="px-4 py-3 text-center text-foreground">
+                                  {dayData[type] ? dayData[type].toLocaleString() : "-"}
+                                </td>
+                              ))}
+                              <td className="px-4 py-3 text-center font-semibold bg-pink-100 dark:bg-pink-900/30 text-foreground">
+                                {dayTotal.toLocaleString()}
+                              </td>
+                            </tr>
+                          )
+                        })}
+
+                      <tr className="border-b-2 border-primary/20 bg-green-50 dark:bg-green-950/20 font-semibold">
+                        <td className="px-4 py-3"></td>
+                        <td className="px-4 py-3 text-left text-foreground">Total</td>
+                        {allMealTypes.map((type) => {
+                          const typeTotal = Object.values(monthData).reduce((sum, day) => sum + (day[type] || 0), 0)
+                          return (
+                            <td key={type} className="px-4 py-3 text-center text-foreground">
+                              {typeTotal > 0 ? typeTotal.toLocaleString() : "-"}
+                            </td>
+                          )
+                        })}
+                        <td className="px-4 py-3 text-center bg-green-200 dark:bg-green-900/40 text-foreground">
+                          {monthTotal.toLocaleString()}
+                        </td>
+                      </tr>
+                    </tbody>
                   )
                 })}
               </tbody>
