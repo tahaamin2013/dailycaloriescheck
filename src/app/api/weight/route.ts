@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const weights = await prisma.weight.findMany({
+    const weights = await (prisma as any).weight.findMany({
       where: { userId },
       orderBy: { date: "desc" },
     })
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Weight and date are required" }, { status: 400 })
     }
 
-    const newWeight = await prisma.weight.create({
+    const newWeight = await (prisma as any).weight.create({
       data: {
         userId,
         weight: Number.parseFloat(weight),

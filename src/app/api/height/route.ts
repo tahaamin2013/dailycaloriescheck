@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const heights = await prisma.height.findMany({
+    const heights = await (prisma as any).height.findMany({
       where: { userId },
       orderBy: { date: "desc" },
     })
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Height and date are required" }, { status: 400 })
     }
 
-    const newHeight = await prisma.height.create({
+    const newHeight = await (prisma as any).height.create({
       data: {
         userId,
         height: Number.parseFloat(height),
