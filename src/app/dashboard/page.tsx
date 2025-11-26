@@ -8,9 +8,10 @@ import HomeTab from "@/components/dashboard/home-tab"
 import AnalyticsTab from "@/components/dashboard/analytics-tab"
 import HeightTab from "@/components/dashboard/height-tab"
 import WeightTab from "@/components/dashboard/weight-tab"
+import MeasurementsTab from "@/components/dashboard/measurement"
 
 function DashboardContent() {
-  const [activeTab, setActiveTab] = useState<"home" | "data" | "analytics" | "height" | "weight">("home")
+  const [activeTab, setActiveTab] = useState<"home" | "data" | "analytics" | "height" | "weight" | "measurements">("home")
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
@@ -62,6 +63,7 @@ function DashboardContent() {
             {activeTab === "analytics" && <AnalyticsTab token={token} />}
             {activeTab === "height" && <HeightTab token={token} />}
             {activeTab === "weight" && <WeightTab token={token} />}
+            {activeTab === "measurements" && <MeasurementsTab token={token} />}
           </div>
         </div>
       </main>

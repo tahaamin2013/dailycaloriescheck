@@ -17,8 +17,7 @@ model User {
   password  String
   meals     Meal[]
   logs      MealLog[]
-  heights   Height[]   @relation(name: "heights")
-  weights   Weight[]   @relation(name: "weights")
+  measurements Measurement[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }
@@ -53,28 +52,17 @@ model MealLog {
   @@index([userId, date])
 }
 
-model Height {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String     @db.ObjectId
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade, name: "heights")
-  height    Float      // in cm
-  date      DateTime
-  notes     String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
-  @@index([userId, date])
-}
-
-model Weight {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String     @db.ObjectId
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade, name: "weights")
-  weight    Float      // in kg
-  date      DateTime
-  notes     String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+model Measurement {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String     @db.ObjectId
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date        DateTime
+  height      Float      // in cm or inches
+  heightUnit  String     // "cm" or "inches"
+  weight      Float      // in kg
+  notes       String?    // Optional notes
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   @@index([userId, date])
 }

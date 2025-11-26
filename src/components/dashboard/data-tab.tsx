@@ -79,11 +79,17 @@ export default function DataTab({ token }: { token: string | null }) {
     return meal ? meal.calories : 0
   }
 
+  const getTotalCalories = (mealName: string, qty: number): number => {
+    const baseCalories = getCaloriesForMeal(mealName)
+    return baseCalories * qty
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!token || !formData.mealName) return
 
-    const calories = getCaloriesForMeal(formData.mealName)
+    const qty = Number.parseInt(formData.qty)
+    const calories = getTotalCalories(formData.mealName, qty)
 
     try {
       const url = editingId ? `/api/meal-logs/${editingId}` : "/api/meal-logs"
@@ -99,7 +105,7 @@ export default function DataTab({ token }: { token: string | null }) {
           date: new Date(formData.date),
           type: formData.type,
           mealName: formData.mealName,
-          qty: Number.parseInt(formData.qty),
+          qty,
           calories,
           notes: formData.notes,
         }),
@@ -233,7 +239,7 @@ export default function DataTab({ token }: { token: string | null }) {
               <div className="md:col-span-2 space-y-2">
                 <label className="text-sm font-medium">Calories (Auto-calculated)</label>
                 <div className="px-3 py-2 border border-input rounded-md bg-secondary/20 text-primary font-semibold">
-                  {getCaloriesForMeal(formData.mealName) || 0} kcal
+                  {getTotalCalories(formData.mealName, Number.parseInt(formData.qty) || 1)} kcal
                 </div>
               </div>
               <div className="md:col-span-2 space-y-2">
