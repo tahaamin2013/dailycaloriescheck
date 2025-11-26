@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { verify } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const token = req.headers.get("authorization")?.replace("Bearer ", "")
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -13,8 +13,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     const body = await req.json()
     const { date, height, heightUnit, weight, notes } = body
 
+    const resolvedParams = await params
     const measurement = await (prisma as any).measurement.update({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       data: {
         date: new Date(date),
         height,
@@ -30,8 +31,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: "Failed to update measurement" }, { status: 500 })
   }
 }
-
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const token = req.headers.get("authorization")?.replace("Bearer ", "")
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -39,8 +39,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     const payload = verify(token)
     if (!payload) return NextResponse.json({ error: "Invalid token" }, { status: 401 })
 
+    const resolvedParams = await params
     await (prisma as any).measurement.delete({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
+      // where: { id: params.id },
     })
 
     return NextResponse.json({ success: true })
