@@ -204,6 +204,7 @@ export default function DataTab({ token }: { token: string | null }) {
                   className="w-full px-3 py-2 border border-input rounded-md bg-background"
                 >
                   <option>Breakfast</option>
+                  <option>Brunch</option>
                   <option>Lunch</option>
                   <option>Dinner</option>
                   <option>Supper</option>
